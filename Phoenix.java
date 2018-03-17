@@ -8,8 +8,8 @@ public class Phoenix extends AnimatedEntity {
     private PathingStrategy strategy = new AStarPathingStrategy();
 
     public Phoenix(String id, Point position,
-                     List<PImage> images,
-                     int actionPeriod, int animationPeriod)
+                   List<PImage> images,
+                   int actionPeriod, int animationPeriod)
     {
         super(id, position, images, actionPeriod, animationPeriod);
     }

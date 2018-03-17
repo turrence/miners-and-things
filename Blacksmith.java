@@ -13,7 +13,7 @@ public class Blacksmith extends AnimatedEntity {
     private PathingStrategy strategy = new AStarPathingStrategy();
 
     public Blacksmith(String id, Point position, List<PImage> images,
-        int actionPeriod, int animationPeriod)
+                      int actionPeriod, int animationPeriod)
     {
         super(id, position, images, actionPeriod, animationPeriod);
     }

@@ -65,6 +65,7 @@ public class MinerFull extends AnimatedEntity {
                 {
                     scheduler.unscheduleAllEvents(occupant.get());
                 }
+
                 world.moveEntity(this, nextPos);
             }
             return false;

@@ -8,6 +8,7 @@ public class MinerNotFull extends AnimatedEntity {
     private int resourceLimit;
     private int resourceCount;
     private PathingStrategy strategy = new AStarPathingStrategy();
+    private List<Point> path;
 
 
     public MinerNotFull(String id, Point position,
@@ -101,7 +102,7 @@ public class MinerNotFull extends AnimatedEntity {
         }
         return newPos;*/
 
-        List<Point> path = strategy.computePath(position(), destPos,
+        path = strategy.computePath(position(), destPos,
                 nextP -> !world.isOccupied(nextP) && withinBounds(world, nextP) &&
                 !world.getOccupant(nextP).isPresent(),
                 (p1, p2) -> adjacent(p1,p2),
@@ -121,6 +122,7 @@ public class MinerNotFull extends AnimatedEntity {
         return (p1.x == p2.x && Math.abs(p1.y - p2.y) == 1) ||
                 (p1.y == p2.y && Math.abs(p1.x - p2.x) == 1);
     }
+
 
     public int getResourceLimit(){return resourceLimit;}
     public int getResourceCount(){return resourceCount;}

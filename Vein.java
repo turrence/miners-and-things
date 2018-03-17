@@ -11,6 +11,7 @@ public class Vein extends ActiveEntity {
     private static final int ORE_CORRUPT_MIN = 20000;
     private static final int ORE_CORRUPT_MAX = 30000;
 
+
     public static final String ORE_KEY = "ore";
 
     public Vein(String id, Point position,

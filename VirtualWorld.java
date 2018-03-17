@@ -2,6 +2,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import processing.core.*;
+import java.util.List;
+import java.util.Random;
+import java.util.function.Function;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 
 public final class VirtualWorld
    extends PApplet
@@ -61,6 +68,7 @@ public final class VirtualWorld
       this.scheduler = new EventScheduler(timeScale);
 
       loadImages(IMAGE_LIST_FILE_NAME, imageStore, this);
+
       loadWorld(world, LOAD_FILE_NAME, imageStore);
 
       scheduleActions(world, scheduler, imageStore);
@@ -213,4 +221,58 @@ public final class VirtualWorld
    public long getNext_time() {
       return next_time;
    }
+
+
+   private static final int PHOENIX_PERIOD_SCALE = 4;
+   private static final int PHOENIX_ANIMATION_MIN = 50;
+   private static final int PHOENIX_ANIMATION_MAX = 150;
+
+
+
+   public void mousePressed() {
+      Point point = view.colRowToPoint(mouseX/TILE_WIDTH, mouseY/TILE_HEIGHT);
+
+      // Making sure I don't spawn a phoenix on top of an existing entity.
+      for (Entity entity : world.getEntities()) {
+         if (entity.position().equals(point)) {
+            System.out.println("Entity");
+            return;
+         }
+      }
+      Random rand = new Random();
+
+      // Add the Dragon
+      Phoenix phoenix = EntityFactory.createPhoenix("PHOENIX_" + point.x + "_" + point.y,
+              point, rand.nextInt(5000)+ 8000/ PHOENIX_PERIOD_SCALE,PHOENIX_ANIMATION_MIN +
+                      rand.nextInt(PHOENIX_ANIMATION_MAX - PHOENIX_ANIMATION_MIN), imageStore.getImageList("phoenix"));
+
+      world.addEntity(phoenix);
+      phoenix.scheduleActions(scheduler, world, imageStore);
+
+      // Make Fire
+      List<Point> neighbors = DIAGONAL_CARDINAL_NEIGHBORS.apply(point).collect(Collectors.toList());
+
+
+      Random random = new Random();
+      for (Point p : neighbors) {
+         int dist = point.distanceSquared(p);
+         if (dist < random.nextInt(6) + 1) {
+            Fire fire = EntityFactory.createFire("FIRE_" ,p, imageStore.getImageList("fire"));
+            world.setOccupancyCell(p,fire);
+         }
+      }
+
+   }
+   private static final Function<Point, Stream<Point>> DIAGONAL_CARDINAL_NEIGHBORS =
+           point ->
+                   Stream.<Point>builder()
+                           .add(new Point(point.x - 1, point.y - 1))
+                           .add(new Point(point.x + 1, point.y + 1))
+                           .add(new Point(point.x - 1, point.y + 1))
+                           .add(new Point(point.x + 1, point.y - 1))
+                           .add(new Point(point.x, point.y - 1))
+                           .add(new Point(point.x, point.y + 1))
+                           .add(new Point(point.x - 1, point.y))
+                           .add(new Point(point.x + 1, point.y))
+                           .build();
 }

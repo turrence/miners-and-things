@@ -8,9 +8,7 @@ public abstract class EntityFactory {
     private static final int QUAKE_ACTION_PERIOD = 1100;
     private static final int QUAKE_ANIMATION_PERIOD = 100;
 
-    public static Blacksmith createBlacksmith(String id, Point position,
-                                              List<PImage> images,
-                                              int actionPeriod, int animationPeriod) {
+    public static Blacksmith createBlacksmith(String id, Point position, List<PImage> images, int actionPeriod, int animationPeriod) {
         return new Blacksmith(id, position, images, actionPeriod, animationPeriod);
     }
 
@@ -50,8 +48,21 @@ public abstract class EntityFactory {
         return new Vein(id, position, images, actionPeriod);
     }
 
+    public static Phoenix createPhoenix(String id, Point position,
+                                        int actionPeriod, int animationPeriod, List<PImage> images) {
+        return new Phoenix(id, position, images, actionPeriod, animationPeriod);
+    }
+
+    public static Fire createFire(String id, Point position,
+                                  List<PImage> images)
+    {
+        return new Fire(id,position,images);
+    }
+
     public static BurntVein createBurntVein(String id, Point position,
-                                          List<PImage> images) {
+                                            List<PImage> images) {
         return new BurntVein(id, position, images);
     }
+
+
 }

@@ -91,4 +91,9 @@ final class WorldView
    public Viewport getViewport() {
       return viewport;
    }
+
+   public Point colRowToPoint(int x, int y)
+   {
+      return new Point(x,y);
+   }
 }

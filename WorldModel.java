@@ -1,6 +1,8 @@
 import processing.core.PImage;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 final class WorldModel {
 
@@ -231,6 +233,12 @@ final class WorldModel {
     public int numRows(){return numRows;}
     public int numCols(){return numCols;}
     public Set<Entity> getEntities(){return entities;}
+
+    public void setBackgroundImage(List<PImage> images, Point p)
+    {
+        this.background[p.y][p.x] = new Background("fire", images);
+    }
+
 
 
 }

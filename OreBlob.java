@@ -29,7 +29,7 @@ public class OreBlob extends AnimatedEntity {
                 Quake quake = EntityFactory.createQuake(tgtPos,
                         imageStore.getImageList(QUAKE_KEY));
 
-                world.addEntity(quake);
+                world.addEntity( quake);
                 nextPeriod += getActionPeriod();
                 quake.scheduleActions(scheduler, world, imageStore);
             }
