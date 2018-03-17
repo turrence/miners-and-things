@@ -1,0 +1,19 @@
+1. trigger event by mouse click
+2. phoenix spawns with fire around
+	- fire should only be passable by phoenix
+3. phoenix converts veins to BurntVeins
+	-burntVeins do not spawn ores
+	-blacksmiths can now move to convert burntVeins to Veins
+4. phoenix moves super fast and ignites veins (Veins -> BurntVein)
+5. Terence Tong - implemented
+		~Phoenix.java
+		~Blacksmith.java
+		Fire.java
+		BurntVein.java
+	Siriwan Sereesathien
+		-mouse click event
+			-WorldView stuff
+			-spawn fires and phoenix
+		-Phoenix image and animation
+		-BurntVein images
+		-Fire images
