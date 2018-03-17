@@ -70,7 +70,7 @@ public class Phoenix extends AnimatedEntity {
                         && withinBounds(world, nextP) &&// predicate that checks for boundaries
                         (!world.getOccupant(nextP).isPresent() || world.getOccupancyCell(nextP).getClass() == Fire.class),
                 (p1, p2) -> adjacent(p1,p2),
-                PathingStrategy.CARDINAL_NEIGHBORS);
+                PathingStrategy.ALL_NEIGHBORS);
         if (path.size() == 0)
             return position();
         return path.get(0);
@@ -83,8 +83,8 @@ public class Phoenix extends AnimatedEntity {
 
     private boolean adjacent(Point p1, Point p2)
     {
-        return (p1.x == p2.x && Math.abs(p1.y - p2.y) == 1) ||
-                (p1.y == p2.y && Math.abs(p1.x - p2.x) == 1);
+        return (Math.abs(p1.x - p2.x) == 1 || Math.abs(p1.x - p2.x) == 0) &&
+                (Math.abs(p1.y - p2.y) == 1 || Math.abs(p1.y - p2.y) == 0);
     }
 
 }

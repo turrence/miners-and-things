@@ -27,4 +27,17 @@ interface PathingStrategy
             .add(new Point(point.x - 1, point.y))
             .add(new Point(point.x + 1, point.y))
             .build();
+
+   static final Function<Point, Stream<Point>> ALL_NEIGHBORS =
+           point ->
+                   Stream.<Point>builder()
+                           .add(new Point(point.x+1, point.y))
+                           .add(new Point(point.x-1, point.y))
+                           .add(new Point(point.x, point.y + 1))
+                           .add(new Point(point.x, point.y - 1))
+                           .add(new Point(point.x+1, point.y+1))
+                           .add(new Point(point.x-1, point.y-1))
+                           .add(new Point(point.x-1, point.y+1))
+                           .add(new Point(point.x+1, point.y-1))
+                           .build();
 }
