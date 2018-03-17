@@ -2,52 +2,45 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
 import processing.core.*;
-import java.util.List;
-import java.util.Random;
-import java.util.function.Function;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 public final class VirtualWorld
    extends PApplet
 {
-   private static final int TIMER_ACTION_PERIOD = 100;
+   public static final int TIMER_ACTION_PERIOD = 100;
 
-   private static final int VIEW_WIDTH = 640;
-   private static final int VIEW_HEIGHT = 480;
-   private static final int TILE_WIDTH = 32;
-   private static final int TILE_HEIGHT = 32;
-   private static final int WORLD_WIDTH_SCALE = 2;
-   private static final int WORLD_HEIGHT_SCALE = 2;
+   public static final int VIEW_WIDTH = 640;
+   public static final int VIEW_HEIGHT = 480;
+   public static final int TILE_WIDTH = 32;
+   public static final int TILE_HEIGHT = 32;
+   public static final int WORLD_WIDTH_SCALE = 2;
+   public static final int WORLD_HEIGHT_SCALE = 2;
 
-   private static final int VIEW_COLS = VIEW_WIDTH / TILE_WIDTH;
-   private static final int VIEW_ROWS = VIEW_HEIGHT / TILE_HEIGHT;
-   private static final int WORLD_COLS = VIEW_COLS * WORLD_WIDTH_SCALE;
-   private static final int WORLD_ROWS = VIEW_ROWS * WORLD_HEIGHT_SCALE;
+   public static final int VIEW_COLS = VIEW_WIDTH / TILE_WIDTH;
+   public static final int VIEW_ROWS = VIEW_HEIGHT / TILE_HEIGHT;
+   public static final int WORLD_COLS = VIEW_COLS * WORLD_WIDTH_SCALE;
+   public static final int WORLD_ROWS = VIEW_ROWS * WORLD_HEIGHT_SCALE;
 
-   private static final String IMAGE_LIST_FILE_NAME = "imagelist";
-   private static final String DEFAULT_IMAGE_NAME = "background_default";
-   private static final int DEFAULT_IMAGE_COLOR = 0x808080;
+   public static final String IMAGE_LIST_FILE_NAME = "imagelist";
+   public static final String DEFAULT_IMAGE_NAME = "background_default";
+   public static final int DEFAULT_IMAGE_COLOR = 0x808080;
 
-   private static final String LOAD_FILE_NAME = "gaia.sav";
+   public static final String LOAD_FILE_NAME = "gaia.sav";
 
-   private static final String FAST_FLAG = "-fast";
-   private static final String FASTER_FLAG = "-faster";
-   private static final String FASTEST_FLAG = "-fastest";
-   private static final double FAST_SCALE = 0.5;
-   private static final double FASTER_SCALE = 0.25;
-   private static final double FASTEST_SCALE = 0.10;
+   public static final String FAST_FLAG = "-fast";
+   public static final String FASTER_FLAG = "-faster";
+   public static final String FASTEST_FLAG = "-fastest";
+   public static final double FAST_SCALE = 0.5;
+   public static final double FASTER_SCALE = 0.25;
+   public static final double FASTEST_SCALE = 0.10;
 
-   private static double timeScale = 1.0;
+   public static double timeScale = 1.0;
 
-   private ImageStore imageStore;
-   private WorldModel world;
-   private WorldView view;
-   private EventScheduler scheduler;
+   public ImageStore imageStore;
+   public WorldModel world;
+   public WorldView view;
+   public EventScheduler scheduler;
 
-   private long next_time;
+   public long next_time;
 
    public void settings()
    {
@@ -68,7 +61,6 @@ public final class VirtualWorld
       this.scheduler = new EventScheduler(timeScale);
 
       loadImages(IMAGE_LIST_FILE_NAME, imageStore, this);
-
       loadWorld(world, LOAD_FILE_NAME, imageStore);
 
       scheduleActions(world, scheduler, imageStore);
@@ -81,7 +73,7 @@ public final class VirtualWorld
       long time = System.currentTimeMillis();
       if (time >= next_time)
       {
-         this.scheduler.updateOnTime(time);
+         scheduler.updateOnTime(time);
          next_time = time + TIMER_ACTION_PERIOD;
       }
 
@@ -152,7 +144,7 @@ public final class VirtualWorld
       try
       {
          Scanner in = new Scanner(new File(filename));
-         world.load(in, imageStore);
+         Load.load(in, world, imageStore);
       }
       catch (FileNotFoundException e)
       {
@@ -165,10 +157,19 @@ public final class VirtualWorld
    {
       for (Entity entity : world.getEntities())
       {
-         if (entity instanceof ActiveEntity){
-            ActiveEntity ent = (ActiveEntity) entity;
-            ent.scheduleActions(scheduler, world, imageStore);
-         }
+         if(entity instanceof MinerFull)
+         {((MinerFull)entity).scheduleActions(scheduler, world, imageStore);}
+         else if(entity instanceof MinerNotFull)
+         {((MinerNotFull)entity).scheduleActions(scheduler, world, imageStore);}
+         else if(entity instanceof Quake)
+         {((Quake)entity).scheduleActions(scheduler, world, imageStore);}
+         else if(entity instanceof Vein)
+         {((Vein)entity).scheduleActions(scheduler, world, imageStore);}
+         else if(entity instanceof Ore)
+         {((Ore)entity).scheduleActions(scheduler, world, imageStore);}
+         else if(entity instanceof OreBlob)
+         {((OreBlob)entity).scheduleActions(scheduler, world, imageStore);}
+         else{}//??????
 
       }
    }
@@ -197,82 +198,4 @@ public final class VirtualWorld
       parseCommandLine(args);
       PApplet.main(VirtualWorld.class);
    }
-
-   public static double getTimeScale() {
-      return timeScale;
-   }
-
-   public ImageStore getImageStore() {
-      return imageStore;
-   }
-
-   public WorldModel getWorld() {
-      return world;
-   }
-
-   public WorldView getView() {
-      return view;
-   }
-
-   public EventScheduler getScheduler() {
-      return scheduler;
-   }
-
-   public long getNext_time() {
-      return next_time;
-   }
-
-
-   private static final int PHOENIX_PERIOD_SCALE = 4;
-   private static final int PHOENIX_ANIMATION_MIN = 50;
-   private static final int PHOENIX_ANIMATION_MAX = 150;
-
-
-
-   public void mousePressed() {
-      Point point = view.colRowToPoint(mouseX/TILE_WIDTH, mouseY/TILE_HEIGHT);
-
-      // Making sure I don't spawn a phoenix on top of an existing entity.
-      for (Entity entity : world.getEntities()) {
-         if (entity.position().equals(point)) {
-            System.out.println("Entity");
-            return;
-         }
-      }
-      Random rand = new Random();
-
-      // Add the Dragon
-      Phoenix phoenix = EntityFactory.createPhoenix("PHOENIX_" + point.x + "_" + point.y,
-              point, 200,PHOENIX_ANIMATION_MIN +
-                      rand.nextInt(PHOENIX_ANIMATION_MAX - PHOENIX_ANIMATION_MIN), imageStore.getImageList("phoenix"));
-
-      world.addEntity(phoenix);
-      phoenix.scheduleActions(scheduler, world, imageStore);
-
-      // Make Fire
-      List<Point> neighbors = DIAGONAL_CARDINAL_NEIGHBORS.apply(point).collect(Collectors.toList());
-
-
-      Random random = new Random();
-      for (Point p : neighbors) {
-         int dist = point.distanceSquared(p);
-         if (dist < random.nextInt(6) + 1) {
-            Fire fire = EntityFactory.createFire("FIRE_" ,p, imageStore.getImageList("fire"));
-            world.setOccupancyCell(p,fire);
-         }
-      }
-
-   }
-   private static final Function<Point, Stream<Point>> DIAGONAL_CARDINAL_NEIGHBORS =
-           point ->
-                   Stream.<Point>builder()
-                           .add(new Point(point.x - 1, point.y - 1))
-                           .add(new Point(point.x + 1, point.y + 1))
-                           .add(new Point(point.x - 1, point.y + 1))
-                           .add(new Point(point.x + 1, point.y - 1))
-                           .add(new Point(point.x, point.y - 1))
-                           .add(new Point(point.x, point.y + 1))
-                           .add(new Point(point.x - 1, point.y))
-                           .add(new Point(point.x + 1, point.y))
-                           .build();
 }

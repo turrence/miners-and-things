@@ -1,26 +1,26 @@
-final class Animation extends Action
-{
-    private AnimatedEntity entity;
+public class Animation implements Action {
+    private Entity entity;
     private int repeatCount;
 
-    public Animation(AnimatedEntity entity, WorldModel world,
-                     ImageStore imageStore, int repeatCount)
+    public Animation(Entity entity, int repeatCount)
     {
-        super(world, imageStore);
         this.entity = entity;
         this.repeatCount = repeatCount;
     }
 
     public void executeAction(EventScheduler scheduler)
     {
-        entity.nextImage();
+        ((AnimationEntity)entity).nextImage();
 
         if (repeatCount != 1)
-        {
+        {   if (entity instanceof AnimationEntity){
             scheduler.scheduleEvent(entity,
-                    entity.createAnimationAction(
-                            Math.max(repeatCount - 1, 0)), entity.getAnimationPeriod());
+                    Create.createAnimationAction(entity,
+                            Math.max(repeatCount - 1, 0)),
+                    ((AnimationEntity)entity).getAnimationPeriod());}
         }
+
     }
 
 }
+

@@ -12,7 +12,6 @@ final class EventScheduler
       this.pendingEvents = new HashMap<>();
       this.timeScale = timeScale;
    }
-
    public void scheduleEvent(Entity entity, Action action, long afterPeriod)
    {
       long time = System.currentTimeMillis() +
@@ -28,67 +27,39 @@ final class EventScheduler
       pendingEvents.put(entity, pending);
    }
 
-    public void scheduleEvent(Entity entity, Animation action, long afterPeriod)
-    {
-        long time = System.currentTimeMillis() +
-                (long)(afterPeriod * timeScale);
-        Event event = new Event(action, time, entity);
+   public void unscheduleAllEvents(Entity entity)
+   {
+      List<Event> pending = pendingEvents.remove(entity);
 
-        eventQueue.add(event);
+      if (pending != null)
+      {
+         for (Event event : pending)
+         {
+            eventQueue.remove(event);
+         }
+      }
+   }
 
-        // update list of pending events for the given entity
-        List<Event> pending = pendingEvents.getOrDefault(entity,
-                new LinkedList<>());
-        pending.add(event);
-        pendingEvents.put(entity, pending);
-    }
+   public void removePendingEvent(Event event)
+   {
+      List<Event> pending = pendingEvents.get(event.getEntity());
 
+      if (pending != null)
+      {
+         pending.remove(event);
+      }
+   }
 
-    public void unscheduleAllEvents(Entity entity)
-    {
-        List<Event> pending = pendingEvents.remove(entity);
+   public void updateOnTime(long time)
+   {
+      while (!eventQueue.isEmpty() &&
+              eventQueue.peek().getTime() < time)
+      {
+         Event next = eventQueue.poll();
 
-        if (pending != null)
-        {
-            for (Event event : pending)
-            {
-                eventQueue.remove(event);
-            }
-        }
-    }
+         removePendingEvent(next);
 
-    private void removePendingEvent(Event event)
-    {
-        List<Event> pending = pendingEvents.get(event.getEntity());
-
-        if (pending != null)
-        {
-            pending.remove(event);
-        }
-    }
-
-    public void updateOnTime(long time)
-    {
-        while (!eventQueue.isEmpty() &&
-                eventQueue.peek().getTime() < time)
-        {
-            Event next = eventQueue.poll();
-
-            removePendingEvent(next);
-
-            next.getAction().executeAction(this);
-        }
-    }
-
-    public PriorityQueue<Event> getEventQueue() {
-        return eventQueue;
-    }
-
-    public Map<Entity, List<Event>> getPendingEvents() {
-        return pendingEvents;
-    }
-
-    public double getTimeScale() {
-        return timeScale;
-    }
+         next.getAction().executeAction(this);
+      }
+   }
 }

@@ -6,120 +6,83 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class AStarPathingStrategy implements PathingStrategy {
-    @Override
+
     public List<Point> computePath(Point start, Point end,
-                                   Predicate<Point> canPassThrough, // within bounds and not obstacle
-                                   BiPredicate<Point, Point> withinReach, // checks adjacency
-                                   Function<Point, Stream<Point>> potentialNeighbors) {
-        Point initial = start;
-        LinkedList<Node> closeList = new LinkedList<>();
-        LinkedList<Node> openList = new LinkedList<>();
-        List<Point> path = new LinkedList<>();
+                                   Predicate<Point> canPassThrough,
+                                   BiPredicate<Point, Point> withinReach,
+                                   Function<Point, Stream<Point>> potentialNeighbors)
+    {
 
-        Node currentNode = new Node(start, null, Math.abs(start.x - end.x) + Math.abs(start.y - end.y));
-        openList.add(currentNode);
+        //List<Point> open = new ArrayList<>();
+        //List<Point> closed = new ArrayList<>();
+        List<Point> path = new ArrayList<>();
 
-        while(openList.size() > 0){
-//            System.out.println("Start: " + initial);
-//            System.out.println("Current Node: "+ currentNode);
-//            System.out.println("Destination Node: "+ end);
-            if(adjacent(currentNode.point, end)){// end case
-//                System.out.println("PATH FOUND....");
-                Node temp = currentNode.prior;
-                path.add(currentNode.point);
-                while (temp.prior != null) {
-//                    System.out.println("ADDING " + temp + " TO LIST");
-                    path.add(0, temp.point);
-                    temp = temp.prior;
+        //point then prior
+        HashMap<Point, Point> prior = new HashMap<>();
+        HashMap<Point,Integer> gVal = new HashMap<>();
+        HashMap<Point, Integer> fVal = new HashMap<>();
+
+        HashMap<Point,Integer> closed = new HashMap<>();
+        Comparator<Point> comp = (p1,p2) -> fVal.get(p1) - fVal.get(p2);
+        PriorityQueue<Point> open = new PriorityQueue<>(comp);
+
+        open.add(start);
+        Point current = start;
+        gVal.put(current,0);
+        fVal.put(current,hCost(current,end));
+        prior.put(current,null);
+
+        while(!withinReach.test(current,end))
+        {
+            //dealing with neighbors and adding to the open list
+            for (Point p : potentialNeighbors.apply(current).filter(canPassThrough).collect(Collectors.toList())) {
+                if (closed.get(p) != null|| open.contains(p)) {
+                    continue;
                 }
-//                System.out.println("PATH: ");
-//                path.forEach(point -> System.out.print(point + " -> "));
-//            throw new RuntimeException("well u found it");
+                //add all the neighbors and calculate their values as necessary
+                prior.put(p, current);
+                gVal.put(p,gVal.get(current) + 1);
+                fVal.put(p,hCost(p,end) + gVal.get(p));
+                open.add(p);
+
+            }
+            //take care of current because were done with it
+            open.remove(current);
+            closed.put(current,1);
+
+            //returns empty list if no where to move
+            if (open.isEmpty())
                 return path;
-            }
 
-            Node finalCurrentNode = currentNode;
-            List<Point> neighbors = potentialNeighbors.apply(currentNode.point)
-                    .filter(canPassThrough) // will vary from Miners to OreBlob
-                    .filter(point -> withinReach.test(point, finalCurrentNode.point))
-//                   .limit(1)
-                    /*.filter(pt -> !isInList(pt, closeList))
-                    !pt.equals(start)
-                    && !pt.equals(end)
-                    && Math.abs(end.x - pt.x) <= Math.abs(end.x - start.point.x)
-                    && Math.abs(end.y - pt.y) <= Math.abs(end.y - start.point.y)) // replace with a withinReach*/
-                    .collect(Collectors.toList());
-//                    neighbors.forEach(n -> System.out.println("Neighbors: "+n));
-
-/*            if (neighbors.size() == 0){
-                Node deleted = openList.remove(0);
-                closeList.add(deleted);
-                Collections.sort(openList, Comparator.comparing(Node :: total));
-            }*/
-
-            for(Point pt : neighbors){
-                Node node = new Node(pt, currentNode, Math.abs(pt.x - end.x) + Math.abs(pt.y - end.y));
-                if (!(closeList.contains(node) || openList.contains(node))){// not in close list or open list
-                    openList.add(node);
-                }
-                else if (openList.contains(node) && !closeList.contains(node)){// in open list replace
-                    if(openList.get(openList.indexOf(node)).fromStart < node.fromStart)
-                        openList.set(openList.indexOf(node), node);
+            //find the smallest fval point
+            /*Point temp = open.get(0);
+            for (int i = 1; i< open.size(); i++)
+            {
+                if (fVal.get(open.get(i)) < fVal.get(temp))
+                {
+                    temp = open.get(i);
                 }
             }
+            current = temp;*/
 
-            openList.remove(0);
-            closeList.add(currentNode);
-            Collections.sort(openList, Comparator.comparing(Node :: total));
+            //changed data structure to priority queue
+            current = open.poll();
+        }
 
-            if(openList.size() == 0){
-//                System.out.println("PATH NOT FOUND");
-                return path;
-            }
-
-            currentNode = openList.get(0);
+        //build path using prior
+        while(prior.get(current) != null)
+        {
+            path.add(0,current);
+            current = prior.get(current);
         }
         return path;
+
     }
-    private boolean adjacent(Point p1, Point p2)
+
+    private int hCost(Point start, Point goal)
     {
-        return (p1.x == p2.x && Math.abs(p1.y - p2.y) == 1) ||
-                (p1.y == p2.y && Math.abs(p1.x - p2.x) == 1);
+        //change in x plus change in y
+        return Math.abs((goal.getX() - start.getX())) + Math.abs((goal.getY() - start.getY()));
     }
 
-
-
-    private class Node{
-        private final Point point;
-        private final Node prior;
-        private int fromStart;  // g value
-        private int toEnd;      // h value
-
-        private Node(Point pt, Node prior, int h){
-            point = pt;
-            this.prior = prior;
-            fromStart = prior == null ? 0 : prior.fromStart + 1;
-            toEnd = h;
-        }
-
-        private int total(){return fromStart + toEnd;}
-
-        private Node prior(){return prior;}
-
-        private Point point(){return point;}
-
-        public boolean equals(Object o){
-            if (o == null)
-                return false;
-            if(o.getClass() != getClass())
-                return false;
-            Node obj = (Node) o;
-            return point.equals(obj.point);
-        }
-
-        public String toString(){
-            return point.toString() + " PRIOR: " + ((prior == null) ? "NONE" : prior.point.toString());
-        }
-    }
 }
-
