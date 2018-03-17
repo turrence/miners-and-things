@@ -243,7 +243,7 @@ public final class VirtualWorld
 
       // Add the Dragon
       Phoenix phoenix = EntityFactory.createPhoenix("PHOENIX_" + point.x + "_" + point.y,
-              point, rand.nextInt(5000)+ 8000/ PHOENIX_PERIOD_SCALE,PHOENIX_ANIMATION_MIN +
+              point, 200,PHOENIX_ANIMATION_MIN +
                       rand.nextInt(PHOENIX_ANIMATION_MAX - PHOENIX_ANIMATION_MIN), imageStore.getImageList("phoenix"));
 
       world.addEntity(phoenix);

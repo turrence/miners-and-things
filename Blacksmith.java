@@ -11,11 +11,14 @@ public class Blacksmith extends AnimatedEntity {
     private static Random rand = new Random();
 
     private PathingStrategy strategy = new AStarPathingStrategy();
+    private final Point origPosition;
 
     public Blacksmith(String id, Point position, List<PImage> images,
                       int actionPeriod, int animationPeriod)
     {
+
         super(id, position, images, actionPeriod, animationPeriod);
+        origPosition = position;
     }
 
 
@@ -33,12 +36,21 @@ public class Blacksmith extends AnimatedEntity {
             {
                 System.out.println("replacing vein at: "+ smithTarget.get().position());
                 Vein vein = EntityFactory.createVein("Vein:" + smithTarget.get().getId() ,
-                        tgtPos, rand.nextInt(7000) + 8000 , imageStore.getImageList(VEIN_KEY));
+                        tgtPos,1000 , imageStore.getImageList(VEIN_KEY));
                 world.removeEntity(smithTarget.get());
                 scheduler.unscheduleAllEvents(smithTarget.get()); // probably not necessary
                 world.addEntity(vein);
                 vein.scheduleActions(scheduler, world, imageStore);
                 nextPeriod += getActionPeriod();
+            }
+        } else {
+            if(!origPosition.equals(position())){
+                try {
+                    if(nextPosition(world, origPosition) != null)
+                        world.moveEntity(this, nextPosition(world, origPosition));
+                } catch (NullPointerException e){
+                    world.moveEntity(this, origPosition);
+                }
             }
         }
 
