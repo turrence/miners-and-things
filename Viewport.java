@@ -1,3 +1,5 @@
+
+
 final class Viewport
 {
    private int row;
@@ -11,47 +13,42 @@ final class Viewport
       this.numCols = numCols;
    }
 
-   public int getRow()
-   {
-      return row;
-   }
-   public int getCol()
-   {
-      return col;
-   }
-
-   public int getNumRows()
-   {
-      return numRows;
-   }
-   public int getNumCols()
-   {
-      return numCols;
-   }
-
    public void shift(int col, int row)
    {
       this.col = col;
       this.row = row;
    }
 
-   public boolean contains(Point p)
-   {
-      return p.getY() >= row && p.getY() < row + numRows &&
-              p.getX() >=col && p.getX() < col + numCols;
-   }
-   public Point viewportToWorld(int col, int row)
-   {
-      return new Point(col + this.col, row + this.row);
-   }
+    public boolean contains(Point p)
+    {
+        return p.y >= row && p.y < row + numRows &&
+                p.x >= col && p.x < col + numCols;
+    }
 
-   public Point worldToViewport(int col, int row)
-   {
-      return new Point(col - this.col, row - this.row);
-   }
+    public Point viewportToWorld(int col, int row)
+    {
+        return new Point(col + this.col, row + this.row);
+    }
 
-   public int clamp(int value, int low, int high)
-   {
-      return Math.min(high, Math.max(value, low));
-   }
+    public Point worldToViewport(int col, int row)
+    {
+        return new Point(col - this.col, row - this.row);
+    }
+
+    public int getRow() {
+        return row;
+    }
+
+    public int getCol() {
+        return col;
+    }
+
+    public int getNumRows() {
+        return numRows;
+    }
+
+    public int getNumCols() {
+        return numCols;
+    }
 }
+

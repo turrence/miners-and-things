@@ -1,25 +1,17 @@
-public class Activity implements Action{
-    //private ActionKind kind;
-    private Entity entity;
-    private WorldModel world;
-    private ImageStore imageStore;
-    //private int repeatCount;
+final class Activity extends Action
+{
 
-    public Activity(Entity entity, WorldModel world,
-                  ImageStore imageStore)
-    {
-       // this.kind = kind;
-        this.entity = entity;
-        this.world = world;
-        this.imageStore = imageStore;
-      //  this.repeatCount = repeatCount;
-    }
+    private ActiveEntity entity;
+
+    public Activity(ActiveEntity entity, WorldModel world,
+                    ImageStore imageStore)
+   {
+       super(world, imageStore);
+       this.entity = entity;
+   }
 
     public void executeAction(EventScheduler scheduler)
     {
-        if (entity instanceof  ActiveEntity) {
-            ((ActiveEntity)entity).executeActivity(world, imageStore, scheduler);//???
-        }
+        entity.executeActivity(getWorld(), getImageStore(), scheduler);
     }
-
 }

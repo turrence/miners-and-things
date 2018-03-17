@@ -3,16 +3,30 @@ import processing.core.PImage;
 
 final class Background
 {
-   public String id;
+   private String id;
    private List<PImage> images;
+   private int imageIndex;
 
    public Background(String id, List<PImage> images)
    {
       this.id = id;
       this.images = images;
    }
+
    public PImage getCurrentImage()
    {
-         return images.get(0);
+         return images.get(imageIndex);
+   }
+
+   public String getId() {
+      return id;
+   }
+
+   public List<PImage> getImages() {
+      return images;
+   }
+
+   public int getImageIndex() {
+      return imageIndex;
    }
 }

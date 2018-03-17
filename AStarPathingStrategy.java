@@ -82,7 +82,7 @@ public class AStarPathingStrategy implements PathingStrategy {
     private int hCost(Point start, Point goal)
     {
         //change in x plus change in y
-        return Math.abs((goal.getX() - start.getX())) + Math.abs((goal.getY() - start.getY()));
+        return Math.abs((goal.x - start.x)) + Math.abs((goal.y - start.y));
     }
 
 }

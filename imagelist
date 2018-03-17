@@ -27,4 +27,8 @@ quake images/quake5.bmp 255 255 255 0
 quake images/quake6.bmp 255 255 255 0
 rocks images/rock.bmp
 vein images/vein.bmp
+phoenix images/phoenix1.bmp 255 255 255 0
+phoenix images/phoenix2.bmp 255 255 255 0
+fire images/fire.bmp 0 0 0 0
+burntvein images/burntvein.bmp 255 255 255 0
 background_default images/none.bmp

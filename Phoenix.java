@@ -26,7 +26,7 @@ public class Phoenix extends AnimatedEntity {
 
             if (moveTo(world, phoenixTarget.get(), scheduler))
             {
-                System.out.println("replacing vein at: "+ phoenixTarget.get().position());
+//                System.out.println("replacing vein at: "+ phoenixTarget.get().position());
                 BurntVein burnt_vein = EntityFactory.createBurntVein("burnt vein",
                         tgtPos, imageStore.getImageList("burntvein"));
                 world.removeEntity(phoenixTarget.get());
@@ -58,7 +58,11 @@ public class Phoenix extends AnimatedEntity {
                 {
                     scheduler.unscheduleAllEvents(occupant.get());
                 }
-                world.moveEntity(this, nextPos);
+                try {
+                    world.moveEntity(this, nextPos);
+                } catch (NullPointerException e){
+
+                }
             }
             return false;
         }
@@ -66,8 +70,8 @@ public class Phoenix extends AnimatedEntity {
 
     private Point nextPosition(WorldModel world, Point destPos){
         List<Point> path = strategy.computePath(position(), destPos,
-                nextP -> (!world.isOccupied(nextP) || world.getOccupancyCell(nextP).getClass() == Fire.class)
-                        && withinBounds(world, nextP) &&// predicate that checks for boundaries
+                nextP -> (!world.isOccupied(nextP) || world.getOccupancyCell(nextP).getClass() == Fire.class) &&
+                        withinBounds(world, nextP) &&// predicate that checks for boundaries
                         (!world.getOccupant(nextP).isPresent() || world.getOccupancyCell(nextP).getClass() == Fire.class),
                 (p1, p2) -> adjacent(p1,p2),
                 PathingStrategy.ALL_NEIGHBORS);
